@@ -1,0 +1,75 @@
+name: Deploy Frontend Stats
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "public/**"
+      - "terraform/**"
+      - "scripts/**"
+      - "package.json"
+      - ".github/workflows/deploy-frontend-stats.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
+  TF_IN_AUTOMATION: "true"
+
+jobs:
+  deploy:
+    name: Deploy stats frontend
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_wrapper: false
+
+      - name: Write runtime config
+        run: |
+          cat > public/config.js <<EOF
+          window.APP_CONFIG = {
+            STATS_API_URL: "${STATS_API_URL}",
+          };
+          EOF
+        env:
+          STATS_API_URL: ${{ secrets.STATS_API_URL || vars.STATS_API_URL || 'https://2g1p050mzf.execute-api.us-east-1.amazonaws.com/dev' }}
+
+      - name: Terraform init
+        run: terraform -chdir=terraform init
+
+      - name: Terraform apply
+        run: terraform -chdir=terraform apply -auto-approve
+
+      - name: Read Terraform outputs
+        id: tf
+        run: |
+          echo "bucket=$(terraform -chdir=terraform output -raw bucket_name)" >> "$GITHUB_OUTPUT"
+          echo "distribution_id=$(terraform -chdir=terraform output -raw cloudfront_distribution_id)" >> "$GITHUB_OUTPUT"
+
+      - name: Upload static assets
+        run: aws s3 sync public "s3://${{ steps.tf.outputs.bucket }}" --delete --cache-control "public,max-age=300"
+
+      - name: Upload index
+        run: aws s3 cp public/index.html "s3://${{ steps.tf.outputs.bucket }}/index.html" --cache-control "no-cache,no-store,must-revalidate" --content-type "text/html"
+
+      - name: Upload runtime config
+        run: aws s3 cp public/config.js "s3://${{ steps.tf.outputs.bucket }}/config.js" --cache-control "no-cache,no-store,must-revalidate" --content-type "application/javascript"
+
+      - name: Invalidate CloudFront
+        run: aws cloudfront create-invalidation --distribution-id "${{ steps.tf.outputs.distribution_id }}" --paths "/*"
