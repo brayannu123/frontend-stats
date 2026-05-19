@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Dashboard de estadisticas para enlaces acortados." />
+    <title>Estadisticas - URL Shortener</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="topbar" aria-label="Resumen">
+        <div class="brand-heading">
+          <img class="brand-logo" src="brand-stats.svg" alt="Logo Estadisticas de enlaces" />
+          <div>
+            <p class="eyebrow">Modulo 4</p>
+            <h1>Estadisticas de enlaces</h1>
+            <p class="subtitle">Consulta el rendimiento de cualquier URL corta conectada al servicio de estadisticas.</p>
+          </div>
+        </div>
+        <a class="ghost-link" href="../">Crear enlace</a>
+      </section>
+
+      <section class="query-panel" aria-label="Formulario de busqueda">
+        <form id="stats-form" class="form-grid">
+          <label>
+            <span>Codigo corto</span>
+            <input id="short-id" name="shortId" type="text" placeholder="abc123" autocomplete="off" required />
+          </label>
+          <label>
+            <span>Desde</span>
+            <input id="start-date" name="startDate" type="date" />
+          </label>
+          <label>
+            <span>Hasta</span>
+            <input id="end-date" name="endDate" type="date" />
+          </label>
+          <button id="submit-button" type="submit">Consultar</button>
+        </form>
+        <p id="form-error" class="form-error" role="alert"></p>
+      </section>
+
+      <section id="empty-state" class="empty-state">
+        <img class="empty-logo" src="brand-stats.svg" alt="" aria-hidden="true" />
+        <h2>Busca un codigo para ver sus metricas</h2>
+        <p>El dashboard mostrara clicks totales, clicks filtrados, URL original y visitas recientes.</p>
+      </section>
+
+      <section id="loading-state" class="state-card hidden" aria-live="polite">
+        <div class="spinner"></div>
+        <p>Cargando estadisticas...</p>
+      </section>
+
+      <section id="not-found-state" class="state-card warning hidden" role="alert">
+        <h2>La pagina no existe</h2>
+        <p>No encontramos un enlace asociado con ese codigo corto.</p>
+      </section>
+
+      <section id="dashboard" class="dashboard hidden" aria-live="polite">
+        <div class="metric-card primary">
+          <span>Clicks totales</span>
+          <strong id="total-clicks">0</strong>
+        </div>
+        <div class="metric-card">
+          <span>Clicks filtrados</span>
+          <strong id="filtered-clicks">0</strong>
+        </div>
+        <div class="metric-card">
+          <span>Visitas registradas</span>
+          <strong id="visit-count">0</strong>
+        </div>
+
+        <article class="details-panel">
+          <div>
+            <p class="eyebrow">Destino original</p>
+            <a id="original-url" href="#" target="_blank" rel="noopener noreferrer"></a>
+          </div>
+          <dl>
+            <div>
+              <dt>Codigo</dt>
+              <dd id="detail-short-id"></dd>
+            </div>
+            <div>
+              <dt>Creado</dt>
+              <dd id="created-at"></dd>
+            </div>
+          </dl>
+        </article>
+
+        <article class="visits-panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Actividad</p>
+              <h2>Ultimas visitas</h2>
+            </div>
+            <span id="range-label"></span>
+          </div>
+          <ol id="visits-list" class="visits-list"></ol>
+        </article>
+      </section>
+    </main>
+
+    <script src="config.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>

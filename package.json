@@ -1,0 +1,9 @@
+{
+  "name": "frontend-stats",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "deploy": "powershell -ExecutionPolicy Bypass -File scripts/deploy.ps1",
+    "url": "powershell -ExecutionPolicy Bypass -File scripts/show-url.ps1"
+  }
+}

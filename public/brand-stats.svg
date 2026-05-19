@@ -1,0 +1,22 @@
+<svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Estadisticas de enlaces</title>
+  <desc id="desc">Logo de panel de estadisticas con barras y linea de crecimiento</desc>
+  <rect width="180" height="180" rx="36" fill="url(#bg)"/>
+  <rect x="38" y="42" width="104" height="96" rx="18" fill="white" fill-opacity="0.96"/>
+  <rect x="55" y="100" width="16" height="22" rx="5" fill="#14B8A6"/>
+  <rect x="82" y="78" width="16" height="44" rx="5" fill="#2563EB"/>
+  <rect x="109" y="59" width="16" height="63" rx="5" fill="#F97316"/>
+  <path d="M54 82L76 68L96 73L124 50" stroke="#134E4A" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="54" cy="82" r="6" fill="#134E4A"/>
+  <circle cx="76" cy="68" r="6" fill="#134E4A"/>
+  <circle cx="96" cy="73" r="6" fill="#134E4A"/>
+  <circle cx="124" cy="50" r="6" fill="#134E4A"/>
+  <path d="M51 139H129" stroke="#D7DFD5" stroke-width="7" stroke-linecap="round"/>
+  <defs>
+    <linearGradient id="bg" x1="14" y1="18" x2="166" y2="164" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#14B8A6"/>
+      <stop offset="0.54" stop-color="#2563EB"/>
+      <stop offset="1" stop-color="#F97316"/>
+    </linearGradient>
+  </defs>
+</svg>
