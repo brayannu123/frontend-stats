@@ -10,6 +10,7 @@
   const notFoundState = document.getElementById('not-found-state');
   const dashboard = document.getElementById('dashboard');
   const visitsList = document.getElementById('visits-list');
+  let refreshTimer = null;
 
   const setVisible = (element, visible) => {
     element.classList.toggle('hidden', !visible);
@@ -79,6 +80,20 @@
     setState('dashboard');
   };
 
+  const stopAutoRefresh = () => {
+    if (refreshTimer) {
+      window.clearInterval(refreshTimer);
+      refreshTimer = null;
+    }
+  };
+
+  const startAutoRefresh = (url, filters) => {
+    stopAutoRefresh();
+    refreshTimer = window.setInterval(() => {
+      loadStats(url, filters, { silent: true });
+    }, 5000);
+  };
+
   const normalizeShortId = (value) => {
     const input = value.trim();
     if (!input) return '';
@@ -98,9 +113,41 @@
     }
   };
 
+  const loadStats = async (url, filters, options = {}) => {
+    try {
+      const response = await fetch(url);
+
+      if (response.status === 404) {
+        stopAutoRefresh();
+        setState('not-found');
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      const data = await response.json();
+      renderDashboard(data, filters);
+
+      if (!options.silent) {
+        startAutoRefresh(url, filters);
+      }
+    } catch (err) {
+      console.error('Error loading stats:', err);
+      if (options.silent) return;
+      error.textContent = 'No pudimos cargar las estadisticas. Revisa la API o intenta de nuevo.';
+      stopAutoRefresh();
+      setState('empty');
+    } finally {
+      submitButton.disabled = false;
+    }
+  };
+
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
     error.textContent = '';
+    stopAutoRefresh();
 
     if (!API_BASE_URL) {
       error.textContent = 'Configura STATS_API_URL en public/config.js o en el workflow de despliegue.';
@@ -126,28 +173,7 @@
 
     setState('loading');
     submitButton.disabled = true;
-
-    try {
-      const response = await fetch(url);
-
-      if (response.status === 404) {
-        setState('not-found');
-        return;
-      }
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
-      }
-
-      const data = await response.json();
-      renderDashboard(data, { startDate, endDate });
-    } catch (err) {
-      console.error('Error loading stats:', err);
-      error.textContent = 'No pudimos cargar las estadisticas. Revisa la API o intenta de nuevo.';
-      setState('empty');
-    } finally {
-      submitButton.disabled = false;
-    }
+    await loadStats(url, { startDate, endDate });
   });
 
   setState('empty');
