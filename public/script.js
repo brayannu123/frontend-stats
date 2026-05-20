@@ -79,6 +79,25 @@
     setState('dashboard');
   };
 
+  const normalizeShortId = (value) => {
+    const input = value.trim();
+    if (!input) return '';
+
+    try {
+      const parsed = new URL(input);
+      const parts = parsed.pathname.split('/').filter(Boolean);
+      const shortIndex = parts.indexOf('short');
+
+      if (shortIndex >= 0 && parts[shortIndex + 1]) {
+        return decodeURIComponent(parts[shortIndex + 1]);
+      }
+
+      return decodeURIComponent(parts[parts.length - 1] || '');
+    } catch {
+      return input.replace(/^\/+|\/+$/g, '');
+    }
+  };
+
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
     error.textContent = '';
@@ -89,7 +108,7 @@
     }
 
     const formData = new FormData(form);
-    const shortId = String(formData.get('shortId') || '').trim();
+    const shortId = normalizeShortId(String(formData.get('shortId') || ''));
     const startDate = String(formData.get('startDate') || '').trim();
     const endDate = String(formData.get('endDate') || '').trim();
 
